@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	"math/rand"
 )
 
 type Grid struct {
@@ -60,13 +61,24 @@ func nbCellAround(grid Grid, cellRow int, cellCol int) int {
 	return count
 }
 
-func getNewGrid() Grid {
+func getEmptyGrid() Grid {
 	cells := [30][60] bool{}
 	return Grid{30, 60, cells}
 }
 
+func addLife(grid *Grid, density float64) {
+	for i := 0 ; i < grid.Width - 1 ; i++ {
+		for j := 0 ; j < grid.Height - 1 ; j++ {
+			random := rand.Float64()
+			if(random < density) {
+				grid.Cells[i][j] = true
+			}
+		}
+	}
+}
+
 func update(grid *Grid) {
-	newGrid := getNewGrid()
+	newGrid := getEmptyGrid()
 	for i := 0 ; i < grid.Width - 1 ; i++ {
 		for j := 0 ; j < grid.Height - 1 ; j++ {
 			count := nbCellAround(*grid, i, j)
@@ -79,21 +91,13 @@ func update(grid *Grid) {
 }
 
 func main() {
-	grid := getNewGrid()
-
-	// spaceship
-	grid.Cells[2][2] = true
-	grid.Cells[3][3] = true
-	grid.Cells[3][3] = true
-	grid.Cells[4][1] = true
-	grid.Cells[4][2] = true
-	grid.Cells[4][3] = true
+	grid := getEmptyGrid()
+	addLife(&grid, 0.2)
 
 	for {
 		display(grid)
 		fmt.Println()
 		update(&grid)
-		time.Sleep(time.Millisecond * 400)
+		time.Sleep(time.Millisecond * 100)
 	}
 }
-
