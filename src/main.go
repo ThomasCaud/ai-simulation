@@ -23,13 +23,13 @@ func getCellImg(cell bool) string {
 
 func display(grid Grid) {
 	fmt.Println()
-    for i := range grid.Cells {
-    	line := ""
-    	for j := range grid.Cells[i] {
-    		line += getCellImg(grid.Cells[i][j])
-    	}
-    	fmt.Println(line)
-    }
+	for i := range grid.Cells {
+		line := ""
+		for j := range grid.Cells[i] {
+			line += getCellImg(grid.Cells[i][j])
+		}
+		fmt.Println(line)
+	}
 }
 
 func nbCellAround(grid Grid, cellRow int, cellCol int) int {
