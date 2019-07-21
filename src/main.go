@@ -96,29 +96,30 @@ func update(grid *Grid) {
 	grid.Cells = newGrid.Cells
 }
 
+func throwFatalError(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)	
+}
+
 func main() {
 	width, err := strconv.Atoi(os.Args[1])
 	if err != nil || width <= 0 {
-		fmt.Println("Argument (1) should be a positive integer. Recommended: 100.")
-		os.Exit(1)
+		throwFatalError("Argument (1) should be a positive integer. Recommended: 100.")
 	}
 
 	height, err := strconv.Atoi(os.Args[2])
 	if err != nil || height <= 0 {
-		fmt.Println("Argument (2) should be a positive integer. Recommended: 60.")
-		os.Exit(1)
+		throwFatalError("Argument (2) should be a positive integer. Recommended: 60.")
 	}
 
 	density, err := strconv.ParseFloat(os.Args[3], 64)
 	if err != nil || density <= 0 || density > 1 {
-		fmt.Println("Argument (3) should be a float between 0 and 1. Recommended: 0.2.")
-		os.Exit(1)
+		throwFatalError("Argument (3) should be a float between 0 and 1. Recommended: 0.2.")
 	}
 
 	speed, err := strconv.Atoi(os.Args[4])
 	if err != nil || speed < 0 {
-		fmt.Println("Argument (4) should be a positive integer. Recommended: 100.")
-		os.Exit(1)
+		throwFatalError("Argument (4) should be a positive integer. Recommended: 100.")
 	}
 
 	grid := getEmptyGrid(width, height)
