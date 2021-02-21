@@ -1,9 +1,13 @@
-## Launch
-4 parameters are expected to launch the simulation.
-1. Grid width. Positive integer.
-2. Grid height. Positive integer.
-3. Density of life. Float ]0;1[.
-4. Speed mutation. Positive integer.
+# Cellular automaton
+## Game of Life
+- See [documentation](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
+- Implemented in Golang.
 
-Example
-```go run src/main.go 100 30 0.2 50```
+![Simulation](doc/game_of_life.gif)
+
+## Langton's ant
+- See [documentation](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
+- Implemented using [ps5js](https://p5js.org/).
+- To make it works, just copy and paste the code [in this editor](https://editor.p5js.org/).
+
+![Simulation](doc/ant.gif)
