@@ -1,142 +1,191 @@
-let w = 15;
-let columns;
-let rows;
-let board;
-let ant;
-let nbMove = 0;
+// Canvas related
+let WIDTH = 740;
+let HEIGHT = 400;
 
-class Ant {
-    constructor() {
-        this.x = 23;
-        this.y = 12;
-        let tmp = 1;
-        this.direction = tmp == 0 ? 'LEFT' : tmp == 1 ? 'TOP' : tmp == 2 ? 'RIGHT' : 'BOTTOM';
+// Frames related
+let nbFrame = 0;
+let FRAME_RATE = 15;
+
+// Obstacles
+let walls = [];
+let WALL_DISTANCE_MIN = 50;
+
+// Lives related
+let lives = [];
+let inertie = 0.3;
+let LIFE_STEP = 3;
+let LIFE_DISTANCE_MIN = 5;
+let LIFE_DISTANCE_MAX = 40;
+let LIFE_SPEED_MIN = -1;
+let LIFE_SPEED_MAX = 1;
+
+class Wall {
+    // todo pendant la generation:
+    // startX doit être plus petit que endX
+    // startY doit être plus petit que endY
+    constructor(startX, startY, endX, endY) {
+        this.startX = startX;
+        this.startY = startY;
+        this.endX = endX;
+        this.endY = endY;
     }
 
-    move(currentCaseValue) {
-        this.changeDirection(currentCaseValue);
-        this.go();
+    draw() {
+        fill(0);
+        line(this.startX, this.startY, this.endX, this.endY);
+    }
+}
+
+class Life {
+    constructor(x, y, dir) {
+        this.posXOld = x;
+        this.posYOld = y;
+        this.posX = x;
+        this.posY = y;
+        this.speedX = cos(dir);
+        this.speedY = sin(dir);
     }
 
-    changeDirection(currentCaseValue) {
-        if (!currentCaseValue) {
-            switch (this.direction) {
-                case 'LEFT':
-                    this.direction = 'TOP';
-                    break;
-                case 'TOP':
-                    this.direction = 'RIGHT';
-                    break;
-                case 'RIGHT':
-                    this.direction = 'BOTTOM';
-                    break;
-                default:
-                    this.direction = 'LEFT';
-            }
+    updatePosition() {
+        this.posXOld = this.posX;
+        this.posYOld = this.posY;
+        this.posX += LIFE_STEP * this.speedX;
+        this.posY += LIFE_STEP * this.speedY;
+    }
+
+    setSpeedX(speedX) {
+        this.speedX = speedX < LIFE_SPEED_MIN ? LIFE_SPEED_MIN : speedX > LIFE_SPEED_MAX ? LIFE_SPEED_MAX : speedX;
+    }
+
+    setSpeedY(speedY) {
+        this.speedY = speedY < LIFE_SPEED_MIN ? LIFE_SPEED_MIN : speedY > LIFE_SPEED_MAX ? LIFE_SPEED_MAX : speedY;
+    }
+
+    squareDistanceTo(anotherLife) {
+        return square(this.posX - anotherLife.posX) + (this.posY - anotherLife.posY);
+    }
+
+    near(anotherLife) {
+        let squareDistance = squareDistanceTo(anotherLife);
+        return squareDistance < square(LIFE_DISTANCE_MAX) && squareDistance > square(LIFE_DISTANCE_MIN);
+    }
+
+    // validated
+    distanceToWall(wall) {
+        let minDistance = min(this.posX - wall.startX, this.posY - wall.startY);
+        minDistance = min(minDistance, wall.endY - this.posY);
+        minDistance = min(minDistance, wall.endX - this.posX);
+
+        return minDistance;
+    }
+
+    moveStrategy() {
+        if (!this.avoidWalls()) {
+            // todo check if should avoid lives
         } else {
-            switch (this.direction) {
-                case 'LEFT':
-                    this.direction = 'BOTTOM';
-                    break;
-                case 'BOTTOM':
-                    this.direction = 'RIGHT';
-                    break;
-                case 'RIGHT':
-                    this.direction = 'TOP';
-                    break;
-                default:
-                    this.direction = 'LEFT';
+            print("too near!");
+        }
+    }
+
+    avoidWalls() {
+        for (let i = 0; i < walls.length; i++) {
+            if (abs(this.distanceToWall(walls[i])) < WALL_DISTANCE_MIN) {
+                print(this.distanceToWall(walls[i]));
+                // startX
+                // endX
+                if (walls[i].posX < this.posX) {
+                    print("1");
+                    this.setPosX(this.setPosX + inertie);
+                }
+                if (walls[i].posX > this.posX) {
+                    print("2");
+                    this.setPosX(this.setPosX - inertie);
+                }
+                if (walls[i].posY < this.posY) {
+                    print("3");
+                    this.setPosY(this.setPosY + inertie);
+                }
+                if (walls[i].posY > this.posY) {
+                    print("4");
+                    this.setPosY(this.setPosY - inertie);
+                }
+                return true;
             }
         }
+        return false;
     }
-    go() {
-        switch (this.direction) {
-            case 'LEFT':
-                if (this.x > 0) this.x--;
-                break;
-            case 'TOP':
-                if (this.y + 1 < rows) this.y++;
-                break;
-            case 'RIGHT':
-                if (this.x + 1 < columns) this.x++;
-                break;
-            default:
-                if (this.y > 0) this.y--;
-        }
 
+    normalize() {
+        var speedLength = root(this.speedX * this.speedX + this.speedY * speedY);
+        this.speedX /= speedLength;
+        this.speedY /= speedLength;
+    }
+
+    draw() {
+        fill(0);
+        line(this.posXOld, this.posYOld, this.posX, this.posY);
     }
 }
 
-function calculateColumnsAndRows() {
-    columns = floor(width / w);
-    rows = floor(height / w);
+function setupWalls() {
+    walls.push(new Wall(0, 0, WIDTH, 0));
+    walls.push(new Wall(WIDTH, 0, WIDTH, HEIGHT));
+    walls.push(new Wall(0, HEIGHT, WIDTH, HEIGHT));
+    walls.push(new Wall(0, 0, 0, HEIGHT));
 }
 
-function setupBoards() {
-    board = new Array(columns);
-    for (let i = 0; i < columns; i++) {
-        board[i] = new Array(rows);
-    }
+function createLives() {
+    //lives.push(new Life(40, 40, 0.5));
+    lives.push(new Life(140, 55, -1));
 }
 
 function setup() {
-    createCanvas(720, 400);
-    calculateColumnsAndRows();
-    ant = new Ant();
-    setupBoards();
-    init();
+    createCanvas(WIDTH, HEIGHT);
+    setupWalls();
+    createLives();
 }
 
-function drawAnt(caseValue, i, j) {
-    fill(0);
-
-    line((i + 1) * w, (j + 1) * w, i * w, j * w);
-    line((i + 1) * w, j * w, i * w, (j + 1) * w);
-}
-
-function drawNbMove() {
+function drawNbFrame() {
     textSize(32);
     fill('red');
-    text(nbMove, 10, 30);
+    text(nbFrame, 10, 30);
+}
+
+function drawWalls() {
+    for (let i = 0; i < walls.length; i++) {
+        walls[i].draw();
+    }
+}
+
+function updateAndDrawLives() {
+    for (let i = 0; i < lives.length; i++) {
+        lives[i].moveStrategy();
+        lives[i].updatePosition();
+        lives[i].draw();
+    }
+}
+
+function keyPressed() {
+    if (keyCode === LEFT_ARROW) {
+        lives[0].setSpeedX(lives[0].speedX - inertie);
+    } else if (keyCode === RIGHT_ARROW) {
+        lives[0].setSpeedX(lives[0].speedX + inertie);
+    } else if (keyCode === UP_ARROW) {
+        lives[0].setSpeedY(lives[0].speedY - inertie);
+    } else if (keyCode === DOWN_ARROW) {
+        lives[0].setSpeedY(lives[0].speedY + inertie);
+    }
 }
 
 function draw() {
     background(255);
-    frameRate(40);
-    generate();
-    for (let i = 0; i < columns; i++) {
-        for (let j = 0; j < rows; j++) {
-            if ((board[i][j] == 1)) {
-                fill(255);
-                rect(i * w, j * w, w - 1, w - 1);
-            } else {
-                fill(255, 204, 0);
-                rect(i * w, j * w, w - 1, w - 1);
-            }
+    frameRate(FRAME_RATE);
 
-            if (ant.x == i && ant.y == j) {
-                drawAnt(board[i][j], i, j);
-            }
-        }
-    }
-    nbMove++;
-    drawNbMove();
+    drawWalls();
+    updateAndDrawLives();
 
-}
+    // print(lives[0].distanceToWall(walls[3]));
 
-function mousePressed() {
-    init();
-}
-
-function init() {
-    for (let i = 0; i < columns; i++) {
-        for (let j = 0; j < rows; j++) {
-            board[i][j] = 1;
-        }
-    }
-}
-
-function generate() {
-    ant.move(board[ant.x][ant.y]);
-    board[ant.x][ant.y] = !board[ant.x][ant.y];
+    nbFrame++;
+    drawNbFrame();
 }
