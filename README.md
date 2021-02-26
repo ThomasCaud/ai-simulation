@@ -21,3 +21,5 @@
 - To make it works, just copy and paste the code [in this editor](https://editor.p5js.org/).
 
 ![Simulation](doc/boids_simulation.gif)
+
+- Update: Added predators that get bigger and faster while eating boids.

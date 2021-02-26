@@ -1,4 +1,5 @@
 const flock = [];
+const predators = [];
 
 let alignSlider, cohesionSlider, separationSlider;
 
@@ -68,6 +69,10 @@ function setup() {
     for (let i = 0; i < 100; i++) {
         flock.push(new Boid());
     }
+
+    for (let i = 0; i < 2; i++) {
+        predators.push(new Predator());
+    }
 }
 
 function draw() {
@@ -78,5 +83,12 @@ function draw() {
         boid.flock(flock);
         boid.update();
         boid.show();
+    }
+
+    for (let predator of predators) {
+        predator.edges();
+        predator.goToNearestBoidAndDestroyIfNeeded(flock);
+        predator.update();
+        predator.show();
     }
 }
