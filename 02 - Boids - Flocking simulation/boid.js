@@ -51,27 +51,43 @@ class Boid {
         }
     }
 
-    flock(boids) {
-        let perceptionRadiusAlign = alignSliderRadius.value();
-        let perceptionRadiusCohesion = cohesionSliderRadius.value();
-        let perceptionRadiusSeparation = separationSliderRadius.value();
+    updateSteeringPredators(steering, total) {
+        if (total > 0) {
+            steering.div(total);
+            this.normalizeAndUpdateAcceleration(steering, 0.3);
+        }
+    }
 
-        let steeringAlign = createVector(), steeringCohesion = createVector(), steeringSeparation = createVector();
-        let totalAlign = 0, totalCohesion = 0, totalSeparation = 0;
+    move(boids) {
+        // if we have to avoid predator...
+        // ...it's the panic!
+        // So we don't stay in group anymore.
+        if (this.avoidPredators(predators) == 0) {
+            this.flock(boids);
+        }
+    }
+
+    flock(boids) {
+        let steeringAlign = createVector(),
+            steeringCohesion = createVector(),
+            steeringSeparation = createVector();
+        let totalAlign = 0,
+            totalCohesion = 0,
+            totalSeparation = 0;
 
         for (let other of boids) {
             let distance = dist(this.position.x, this.position.y, other.position.x, other.position.y);
             if (other != this) {
-                if(distance < perceptionRadiusAlign) {
+                if (distance < alignSliderRadius.value()) {
                     steeringAlign.add(other.velocity);
                     totalAlign++;
                 }
-                if (distance < perceptionRadiusCohesion) {
+                if (distance < cohesionSliderRadius.value()) {
                     steeringCohesion.add(other.position);
                     totalCohesion++;
                 }
 
-                if (distance < perceptionRadiusSeparation) {
+                if (distance < separationSliderRadius.value()) {
                     let diff = p5.Vector.sub(this.position, other.position);
                     diff.div(distance);
                     steeringSeparation.add(diff);
@@ -83,6 +99,22 @@ class Boid {
         this.updateSteeringAlign(steeringAlign, totalAlign);
         this.updateSteeringCohesion(steeringCohesion, totalCohesion);
         this.updateSteeringSeparation(steeringSeparation, totalSeparation);
+    }
+
+    avoidPredators(predators) {
+        let steering = createVector();
+        let total = 0;
+        for (let other of predators) {
+            let distance = dist(this.position.x, this.position.y, other.position.x, other.position.y);
+            if (distance < avoidPredatorRadiusSlider.value()) {
+                let diff = p5.Vector.sub(this.position, other.position);
+                diff.div(distance);
+                steering.add(diff);
+                total++;
+            }
+        }
+        this.updateSteeringPredators(steering, avoidPredatorsSlider.value());
+        return total;
     }
 
     update() {

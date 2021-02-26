@@ -7,7 +7,7 @@ class Predator {
         this.acceleration = createVector();
         this.maxForce = maxForceSlider.value();
 
-        // growth when eating units
+        // growth while eating
         this.maxSpeed = maxSpeedSlider.value() / 6;
         this.size = 4;
     }
@@ -34,8 +34,8 @@ class Predator {
     }
 
     increasePower() {
-        this.size += 0.3;
-        this.maxSpeed += 0.05;
+        this.size += 0.15;
+        this.maxSpeed += 0.025;
     }
 
     goToNearestBoidAndDestroyIfNeeded(boids) {
