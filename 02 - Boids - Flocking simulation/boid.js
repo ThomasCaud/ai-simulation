@@ -21,82 +21,68 @@ class Boid {
         }
     }
 
-    align(boids) {
-        let perceptionRadius = alignSliderRadius.value();
-        let steering = createVector();
-        let total = 0;
-        for (let other of boids) {
-            let distance = dist(this.position.x, this.position.y, other.position.x, other.position.y);
-            if (other != this && distance < perceptionRadius) {
-                steering.add(other.velocity);
-                total++;
-            }
-        }
-        if (total > 0) {
-            steering.div(total);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
-        }
-        return steering;
+    normalizeAndUpdateAcceleration(steering, multiplier) {
+        steering.setMag(this.maxSpeed);
+        steering.sub(this.velocity);
+        steering.limit(this.maxForce);
+        steering.mult(multiplier);
+        this.acceleration.add(steering);
     }
 
-    // todo factorize it with align()
-    cohesion(boids) {
-        let perceptionRadius = cohesionSliderRadius.value();
-        let steering = createVector();
-        let total = 0;
-        for (let other of boids) {
-            let distance = dist(this.position.x, this.position.y, other.position.x, other.position.y);
-            if (other != this && distance < perceptionRadius) {
-                steering.add(other.position);
-                total++;
-            }
+    updateSteeringAlign(steering, total) {
+        if (total > 0) {
+            steering.div(total);
+            this.normalizeAndUpdateAcceleration(steering, alignSlider.value());
         }
+    }
+
+    updateSteeringCohesion(steering, total) {
         if (total > 0) {
             steering.div(total);
             steering.sub(this.position);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
+            this.normalizeAndUpdateAcceleration(steering, cohesionSlider.value());
         }
-        return steering;
     }
 
-    separation(boids) {
-        let perceptionRadius = separationSliderRadius.value();
-        let steering = createVector();
-        let total = 0;
-        for (let other of boids) {
-            let distance = dist(this.position.x, this.position.y, other.position.x, other.position.y);
-            if (other != this && distance < perceptionRadius) {
-                let diff = p5.Vector.sub(this.position, other.position);
-                diff.div(distance);
-                steering.add(diff);
-                total++;
-            }
-        }
+    updateSteeringSeparation(steering, total) {
         if (total > 0) {
             steering.div(total);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
+            this.normalizeAndUpdateAcceleration(steering, separationSlider.value());
         }
-        return steering;
     }
 
     flock(boids) {
-        let alignment = this.align(boids);
-        let cohesion = this.cohesion(boids);
-        let separation = this.separation(boids);
+        let perceptionRadiusAlign = alignSliderRadius.value();
+        let perceptionRadiusCohesion = cohesionSliderRadius.value();
+        let perceptionRadiusSeparation = separationSliderRadius.value();
 
-        alignment.mult(alignSlider.value());
-        cohesion.mult(cohesionSlider.value());
-        separation.mult(separationSlider.value());
+        let steeringAlign = createVector(), steeringCohesion = createVector(), steeringSeparation = createVector();
+        let totalAlign = 0, totalCohesion = 0, totalSeparation = 0;
 
-        this.acceleration.add(alignment);
-        this.acceleration.add(cohesion);
-        this.acceleration.add(separation);
+        for (let other of boids) {
+            let distance = dist(this.position.x, this.position.y, other.position.x, other.position.y);
+            if (other != this) {
+                if(distance < perceptionRadiusAlign) {
+                    steeringAlign.add(other.velocity);
+                    totalAlign++;
+                }
+                if (distance < perceptionRadiusCohesion) {
+                    steeringCohesion.add(other.position);
+                    totalCohesion++;
+                }
+
+                if (distance < perceptionRadiusSeparation) {
+                    let diff = p5.Vector.sub(this.position, other.position);
+                    diff.div(distance);
+                    steeringSeparation.add(diff);
+                    totalSeparation++;
+                }
+            }
+        }
+
+        this.updateSteeringAlign(steeringAlign, totalAlign);
+        this.updateSteeringCohesion(steeringCohesion, totalCohesion);
+        this.updateSteeringSeparation(steeringSeparation, totalSeparation);
     }
 
     update() {
