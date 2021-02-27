@@ -10,31 +10,29 @@ class Graph {
         this.nbColumns = nbColumns;
         this.nbRows = nbRows;
 
-        // todo remove params
-        this.createNodes(nbColumns, nbRows);
-        this.defineStartingNode(nbColumns, nbRows);
-        this.defineObjectiveNode(nbColumns, nbRows);
+        this.createNodes();
+        this.defineStartingNode();
+        this.defineObjectiveNode();
 
-        // todo la trier par heuristique
         this.nodesToStudy = [this.startingNode];
         this.state = State.searching;
     }
 
-    createNodes(nbColumns, nbRows) {
-        for (let i = 0; i < nbColumns; i++) {
-            for (let j = 0; j < nbRows; j++) {
+    createNodes() {
+        for (let i = 0; i < this.nbColumns; i++) {
+            for (let j = 0; j < this.nbRows; j++) {
                 this.nodes.push(new Node(i, j));
             }
         }
     }
 
-    defineStartingNode(nbColumns, nbRows) {
-        this.startingNode = this.getEmptyNode(nbColumns, nbRows);
+    defineStartingNode() {
+        this.startingNode = this.getEmptyNode(this.nbColumns, this.nbRows);
         this.startingNode.setStarting();
     }
 
-    defineObjectiveNode(nbColumns, nbRows) {
-        this.objectiveNode = this.getEmptyNode(nbColumns, nbRows);
+    defineObjectiveNode() {
+        this.objectiveNode = this.getEmptyNode(this.nbColumns, this.nbRows);
         this.objectiveNode.setObjective();
     }
 
@@ -62,11 +60,15 @@ class Graph {
 
         for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) break;
-
-                let neighbor = this.getNode(studiedNode.x + i, studiedNode.y + j);
-                if (neighbor != null && !neighbor.isObstacle()) {
-                    emptyNeighbors.push(neighbor);
+                if (!(i == 0 && j == 0) &&
+                    (studiedNode.x + i < this.nbColumns) &&
+                    (studiedNode.y + j < this.nbRows) &&
+                    (studiedNode.x + i > 0) &&
+                    (studiedNode.y + j > 0)) {
+                    let neighbor = this.getNode(studiedNode.x + i, studiedNode.y + j);
+                    if (neighbor != null && !neighbor.isObstacle()) {
+                        emptyNeighbors.push(neighbor);
+                    }
                 }
             }
         }
@@ -122,7 +124,8 @@ class Graph {
         } while (node != this.startingNode);
 
         this.state = State.endOK;
-        print("endOK");
+        this.startingNode.setSolution();
+        print("endOK, final cost is " + this.objectiveNode.cost);
     }
 
     show(nodeSize) {
