@@ -1,5 +1,5 @@
 const nodeSize = 20;
-const stepPerDraw = 5;
+const stepPerDraw = 1;
 
 let graph;
 

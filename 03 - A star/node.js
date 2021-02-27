@@ -1,8 +1,10 @@
 const Type = Object.freeze({
     "empty": "white",
-    "starting": "purple",
-    "obstacle": "red",
-    "solution": "green"
+    "starting": "orange",
+    "obstacle": "black",
+    "solution": "green",
+    "objective": "orange",
+    "studied": "yellow"
 });
 
 class Node {
@@ -21,8 +23,28 @@ class Node {
         return this.type == Type.empty;
     }
 
+    isObstacle() {
+        return this.type == Type.obstacle;
+    }
+
     setStarting() {
         this.type = Type.starting;
+        this.cost = 0;
+    }
+
+    setObjective() {
+        this.type = Type.objective;
+    }
+
+    setSolution() {
+        this.type = Type.solution;
+    }
+
+    updateEvaluation(previousNode, objectiveNode) {
+        this.previousNode = previousNode;
+        this.cost = previousNode.cost + 1;
+        this.type = Type.studied;
+        this.heuristic = this.cost + dist(this.x, this.y, objectiveNode.x, objectiveNode.y);
     }
 
     show(nodeSize) {
