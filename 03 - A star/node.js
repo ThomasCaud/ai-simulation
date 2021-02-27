@@ -1,12 +1,28 @@
-class Node {
-    constructor(x, y, isTraversable) {
-        const Type = Object.freeze({"empty":"white", "obstacle":"red", "solution":"green"});
+const Type = Object.freeze({
+    "empty": "white",
+    "starting": "purple",
+    "obstacle": "red",
+    "solution": "green"
+});
 
+class Node {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.type = Type.empty;
+
+        let randomValue = random(0, 10);
+        this.type = randomValue < 9 ? Type.empty : Type.obstacle;
         this.previousNode = null;
         this.cost = int(Infinity);
+        this.heuristic = int(Infinity);
+    }
+
+    isEmpty() {
+        return this.type == Type.empty;
+    }
+
+    setStarting() {
+        this.type = Type.starting;
     }
 
     show(nodeSize) {

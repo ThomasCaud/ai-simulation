@@ -1,4 +1,5 @@
 const nodeSize = 20;
+const stepPerDraw = 5;
 
 let graph;
 
@@ -10,7 +11,8 @@ function setup() {
 
 function draw() {
     background(255);
-    frameRate(15);
+    frameRate(5);
 
+    graph.calculate(stepPerDraw);
     graph.show(nodeSize);
 }
