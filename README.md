@@ -17,9 +17,21 @@
 - Consist of managing **separation**, **alignement**, and **cohesion**:
   ![Concepts](doc/boids.png)
 
+- Specificities:
+  - Predators exist.
+  - Predator get bigger and faster as they eat.
+  - Flock is not stupid: they will try to avoid predator in their move.
+
 - Implemented using [ps5js](https://p5js.org/).
 - To make it works, just copy and paste the code [in this editor](https://editor.p5js.org/).
 
 ![Simulation](doc/boids_simulation.gif)
 
-- Update: Added predators that get bigger and faster while eating boids.
+# Path search algorithm
+## weighted A*
+- See [documentation](https://en.wikipedia.org/wiki/A*_search_algorithm)
+- A* is a graph traversal and path search algorithm, which is often used in many fields of computer science due to its completeness, optimality, and optimal efficiency.
+
+- Implemented using [ps5js](https://p5js.org/).
+- To make it works, just copy and paste the code [in this editor](https://editor.p5js.org/).
+- ![Simulation](doc/a-star.gif)
