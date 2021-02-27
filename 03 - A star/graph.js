@@ -63,8 +63,8 @@ class Graph {
                 if (!(i == 0 && j == 0) &&
                     (studiedNode.x + i < this.nbColumns) &&
                     (studiedNode.y + j < this.nbRows) &&
-                    (studiedNode.x + i > 0) &&
-                    (studiedNode.y + j > 0)) {
+                    (studiedNode.x + i >= 0) &&
+                    (studiedNode.y + j >= 0)) {
                     let neighbor = this.getNode(studiedNode.x + i, studiedNode.y + j);
                     if (neighbor != null && !neighbor.isObstacle()) {
                         emptyNeighbors.push(neighbor);
@@ -86,7 +86,7 @@ class Graph {
 
     // step management is needed so that we can follow
     // the algorithm in the canvas
-    calculate(nbStep) {
+    calculate(nbStep, weight) {
         let step = 0;
 
         while (step < nbStep && this.state == State.searching && this.nodesToStudy.length > 0) {
@@ -101,7 +101,7 @@ class Graph {
                 let neighbors = this.getEmptyNeighbors(studiedNode);
                 for (let neighbor of neighbors) {
                     if (neighbor.cost > studiedNode.cost + 1) {
-                        neighbor.updateEvaluation(studiedNode, this.objectiveNode);
+                        neighbor.updateEvaluation(studiedNode, this.objectiveNode, weight);
                         this.nodesToStudy.push(neighbor);
                         this.sortNodesToStudy();
                     }
@@ -128,9 +128,9 @@ class Graph {
         print("endOK, final cost is " + this.objectiveNode.cost);
     }
 
-    show(nodeSize) {
+    show(nodeSize, displayCost) {
         for (let n of this.nodes) {
-            n.show(nodeSize);
+            n.show(nodeSize, displayCost);
         }
     }
 }

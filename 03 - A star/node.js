@@ -40,15 +40,22 @@ class Node {
         this.type = Type.solution;
     }
 
-    updateEvaluation(previousNode, objectiveNode) {
+    updateEvaluation(previousNode, objectiveNode, weight) {
         this.previousNode = previousNode;
         this.cost = previousNode.cost + 1;
         this.type = Type.studied;
-        this.heuristic = this.cost + dist(this.x, this.y, objectiveNode.x, objectiveNode.y);
+        this.heuristic = this.cost / weight + dist(this.x, this.y, objectiveNode.x, objectiveNode.y);
     }
 
-    show(nodeSize) {
+    show(nodeSize, displayCost) {
         fill(this.type);
         square(this.x * nodeSize, this.y * nodeSize, nodeSize);
+
+        if (displayCost &&
+            (this.type == Type.studied || this.type == Type.solution)) {
+            textSize(20);
+            fill('blue');
+            text(this.cost, (this.x) * nodeSize, (this.y + 1) * nodeSize);
+        }
     }
 }
