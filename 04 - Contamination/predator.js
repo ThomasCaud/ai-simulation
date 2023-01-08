@@ -1,12 +1,10 @@
 class Predator {
-    constructor() {
-        this.oldPosition = createVector(random(width), random(height));
+    constructor(positionX, positionY) {
+        this.oldPosition = createVector(positionX, positionY);
         this.position = createVector(this.oldPosition.x, this.oldPosition.y);
         this.velocity = p5.Vector.random2D();
         this.velocity.setMag(random(2, 4));
         this.acceleration = createVector();
-
-        // growth while eating
         this.maxSpeed = maxSpeedSlider.value() / 6;
         this.size = 4;
     }
@@ -32,13 +30,12 @@ class Predator {
         this.acceleration.mult(0);
     }
 
-    increasePower() {
-        this.size += 0.15;
-        this.maxSpeed += 0.025;
+    createNewPredator(boid, predators) {
+        predators.push(new Predator(boid.position.x, boid.position.y));
     }
 
-    goToNearestBoidAndDestroyIfNeeded(boids) {
-        if (boids.length == 0) return;
+    goToNearestBoidAndDestroyIfNeeded(boids, predators) {
+        if (boids.length === 0) return;
         let nearestBoid = boids[0];
         let shortestDistance = 999;
 
@@ -52,7 +49,7 @@ class Predator {
 
             if (distance < this.size) {
                 boids.splice(i, 1);
-                this.increasePower();
+                this.createNewPredator(boid, predators);
             }
         }
 
